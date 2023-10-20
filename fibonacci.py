@@ -2,12 +2,13 @@ import random
 import math
 config = {
     'sizefac': 0.8,
-    'sizezoom': 2.5,
+    'sizezoom': 2.25,
     'zoomindex': 4,
     'nodedotsize': 0.2,
     'yoff': 0.5,
     'pagewidth': 19,
     'nodeshrink': 0.6,
+    'linewidth': 0.8,
     'unit': 'cm'
 }
 class RabbitCouple:
@@ -48,7 +49,7 @@ class RabbitCouple:
     def tikzline(self):
         res = ""
         for child in self.children:
-            res += "\\draw[ultra thick] ("+str(id(self))+") -- ("+str(id(child))+");\n"
+            res += "\\draw[line cap=round, line width="+str(config['linewidth'])+"mm] ("+str(id(self))+") -- ("+str(id(child))+");\n"
         return res
     
     def tikzpicture(self):
@@ -62,8 +63,8 @@ class RabbitCouple:
                 monthChildren = self.childrenOfMoth(m)
                 for ix in range(len(monthChildren)):
                     size = minsize*(1 + (config['sizezoom']-1)*((self.maxmoth-m))/self.maxmoth)
-                    image = "{\\includesvg[width="+str(round(size*config['sizefac'], 3))+config['unit']+"]{svgrabbit"+("T" if monthChildren[ix].traechtig else "N")+("M" if monthChildren[ix].random > 0.5 else "N")+".svg}}"
-                    nodedot = "[inner sep="+str(config['nodedotsize'])+"cm, shape=circle, "+("fill" if monthChildren[ix].traechtig else "draw")+"=black, ultra thick] {}"
+                    image = "{\\includegraphics[width="+str(round(size*config['sizefac'], 3))+config['unit']+"]{svgrabbit"+("T" if monthChildren[ix].traechtig else "N")+("M" if monthChildren[ix].random > 0.5 else "N")+".png}}" # +("M" if monthChildren[ix].random > 0.5 else "N") 
+                    nodedot = "[inner sep="+str(config['nodedotsize'])+"cm, line width="+str(config['linewidth'])+"mm, shape=circle, "+("fill" if monthChildren[ix].traechtig else "draw")+"=black] {}"
                     result += monthChildren[ix].tikznode(
                         size*(ix - len(monthChildren)/2), ypos,
                         image if m <= config['zoomindex'] or m == self.maxmoth else nodedot
@@ -90,16 +91,23 @@ print(
 \\usepackage{polyglossia}
 \\setdefaultlanguage[spelling=new]{german}
 \\usepackage{tikz}
+\\pagenumbering{gobble}
 \\begin{document}
 \\begin{center}
 """ + couple.tikzpicture() +
 """
 \\end{center}
-\\vspace*{1cm}
-\hfill\\textbf{\\fontsize{35}{\\baselineskip}\\selectfont 13. Mathenacht}
-\\vspace*{.25cm}
-
-\\hfill\\Huge am Kolleg
+\\vspace*{.5cm}
+\\begin{center}
+\\begin{minipage}{0.825\\linewidth}
+	\\textbf{\\fontsize{35}{\\baselineskip}\\selectfont 13. Mathenacht}
+	\\hfill{\\fontsize{30}{\\baselineskip}\\selectfont am Kolleg}
+	
+	\\vspace*{.75cm}
+	
+	\\hfill\\textit{\\fontsize{25}{\\baselineskip}\\selectfont powered by Förderverein}
+\\end{minipage}
+\\end{center}
 \\end{document}
 """
 )
